@@ -7,12 +7,24 @@ import models
 class BaseModel:
 
         """Represents the BaseModel of the HBnB project."""
-        def __init__(self):
-                """Initialization of a Base instance."""
+        def __init__(self, *args, **kwargs):
+                """Initialization of a Base instance.
 
-                self.id = str(uuid.uuid4())
-                self.created_at = datetime.now()
-                self.updated_at = datetime.now()
+                Args:
+                        - *args: list of arguments
+                        - **kwargs: dict of key-values arguments
+                """
+                form = "%Y-%m-%dT%H:%M:%S.%f"
+                if len(kwargs) != 0:
+                        for k, v in kwargs:
+                                if k == "created_at" or k == "updated_at":
+                                        self.__dict__[k] = datetime.strptime(v, form)
+                                else:
+                                        self.__dict__[k] = v
+                else:
+                        self.id = str(uuid.uuid4())
+                        self.created_at = datetime.now()
+                        self.updated_at = datetime.now()
 
         def __str__(self):
                 """Return the print/str representation of the BaseModel instance."""
