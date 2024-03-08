@@ -26,7 +26,7 @@ class BaseModel:
                 else:
                     self.__dict__[k] = v
         else:
-            models.storage.save()
+            models.storage.new(self)
 
     def __str__(self):
         """Return the print/str representation of the BaseModel instance."""
