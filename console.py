@@ -6,11 +6,11 @@ import re
 from shlex import split
 from models.base_model import BaseModel
 from models.user import User
-from models.state import State
-from models.city import City
 from models.place import Place
-from models.amenity import Amenity
+from models.state import State
 from models.review import Review
+from models.city import City
+from models.amenity import Amenity
 
 
 def parse(arg):
@@ -39,7 +39,7 @@ class HBNBCommand(cmd.Cmd):
     """
 
     prompt = "(hbnb) "
-    __classes = {
+    __classes_name = {
         "BaseModel",
         "User",
         "State",
@@ -59,6 +59,27 @@ class HBNBCommand(cmd.Cmd):
         print("")
         return True
 
+    def default(self, arg):
+        """Default behavior for cmd module when input is invalid"""
+        argdict = {
+            "all": self.do_all,
+            "show": self.do_show,
+            "destroy": self.do_destroy,
+            "count": self.do_count,
+            "update": self.do_update
+        }
+        match = re.search(r"\.", arg)
+        if match is not None:
+            argl = [arg[:match.span()[0]], arg[match.span()[1]:]]
+            match = re.search(r"\((.*?)\)", argl[1])
+            if match is not None:
+                command = [argl[1][:match.span()[0]], match.group()[1:-1]]
+                if command[0] in argdict.keys():
+                    call = "{} {}".format(argl[0], command[1])
+                    return argdict[command[0]](call)
+        print("*** Unknown syntax: {}".format(arg))
+        return False
+
     def emptyline(self):
         """Do nothing."""
         pass
@@ -70,7 +91,7 @@ class HBNBCommand(cmd.Cmd):
         args = parse(arg)
         if len(args) == 0:
             print("** class name missing **")
-        elif args[0] not in HBNBCommand.__classes:
+        elif args[0] not in HBNBCommand.__classes_name:
             print("** class doesn't exist **")
         else:
             print(eval(args[0])().id)
@@ -84,7 +105,7 @@ class HBNBCommand(cmd.Cmd):
         objdict = storage.all()
         if len(args) == 0:
             print("** class name missing **")
-        elif args[0] not in HBNBCommand.__classes:
+        elif args[0] not in HBNBCommand.__classes_name:
             print("** class doesn't exist **")
         elif len(args) == 1:
             print("** instance id missing **")
@@ -101,7 +122,7 @@ class HBNBCommand(cmd.Cmd):
         objdict = storage.all()
         if len(args) == 0:
             print("** class name missing **")
-        elif args[0] not in HBNBCommand.__classes:
+        elif args[0] not in HBNBCommand.__classes_name:
             print("** class doesn't exist **")
         elif len(args) == 1:
             print("** instance id missing **")
@@ -117,7 +138,7 @@ class HBNBCommand(cmd.Cmd):
         If no class is specified, displays all instantiated objects.
         """
         argl = parse(arg)
-        if len(argl) > 0 and argl[0] not in HBNBCommand.__classes:
+        if len(argl) > 0 and argl[0] not in HBNBCommand.__classes_name:
             print("** class doesn't exist **")
         else:
             objl = []
@@ -141,7 +162,7 @@ class HBNBCommand(cmd.Cmd):
         if len(argl) == 0:
             print("** class name missing **")
             return False
-        if argl[0] not in HBNBCommand.__classes:
+        if argl[0] not in HBNBCommand.__classes_name:
             print("** class doesn't exist **")
             return False
         if len(argl) == 1:
